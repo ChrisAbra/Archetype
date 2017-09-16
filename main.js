@@ -19,12 +19,26 @@ Arc.hasAttr = function (object, value) {
     return object.attr('arc-' + value) != undefined;
 }
 
-Archetype.generate = function(containerName){
+Archetype.generate = function (containerName) {
     container = Arc.data[containerName].container;
-    console.log(container[0]);
-    console.log(Arc.data[containerName].archetype[0]);
-    var newContainer = Arc.listPop(container, Arc.data[
-        containerName].data,Arc.data[containerName].archetype.clone(true,true));
+    var newContainer;
+    switch (Arc.data[containerName].type) {
+
+        case 'list':
+            newContainer = Arc.listPop(container, Arc.data[
+                containerName].data, Arc.data[containerName].archetype.clone(true, true));
+            break;
+
+        case 'object':
+            newContainer = Arc.objectPop(Arc.data[containerName].data, Arc.data[containerName].archetype.clone(true, true));
+            break;
+
+        default:
+            console.warn('Type of container (' + containerName + ') set incorrectly as' + Arc.data[containerName].type);
+            break;
+
+    }
+
     $(container).replaceWith(newContainer[0]);
     Arc.data[containerName].container = newContainer;
 }
@@ -35,8 +49,8 @@ Archetype.build = function () {
         var name = Arc.attr($(container), 'container');
         var data;
         var type;
-        if(Arc.data[name] != undefined){
-            console.warn('Don\' attempt to build twice - use generate after build');
+        if (Arc.data[name] != undefined) {
+            console.warn('Do not attempt to build twice - use Archetype.generate(modelName) after build');
             return false;
         }
         if (Arc.hasAttr($(container), 'list')) {
@@ -50,9 +64,18 @@ Archetype.build = function () {
                 container: $(container),
             }
             Archetype.generate(name);
-            
+
         } else if (Arc.hasAttr($(container), 'object')) {
             //dict object
+            type = 'object';
+            data = window[Arc.attr($(container), 'object')];
+            Arc.data[name] = {
+                data: data,
+                type: type,
+                archetype: $(container).clone(true, true),
+                container: $(container),
+            }
+            Archetype.generate(name);
         } else {
             console.warn(
                 'No arc-list or arc-object varaible provided for this element'
@@ -63,7 +86,7 @@ Archetype.build = function () {
 }
 
 Arc.listPop = function (container, data, model) {
-    if(model == undefined){
+    if (model == undefined) {
         model = container.clone(true, true);
     }
     container.html('');
@@ -122,5 +145,3 @@ Arc.valuePop = function (model, index, value) {
     return model.find('[arc-out="' + index + '"]');
 
 }
-
-Archetype.build();

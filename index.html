@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Archetype testing</title>
+	<link href="style.css" rel="stylesheet" type="text/css" />
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="data.js"></script>
+	<script src="main.js"></script>
+
+</head>
+
+<body>
+	<div>
+		<div arc-container="apps" arc-list="applicationData"  id="inbox-items">
+			<div arc-object="arc-var" arc-id="id" class="stack inbox-item">
+				<span arc-out="studentName">Student Name</span>
+				<span arc-out="studentCode">Stucode</span>
+				<div class="pdfIDContainer" arc-object="pdfIds">
+					<span arc-out="one"> pdfID1</span>
+					<b arc-out="two"> pdfID2</b>
+					<u arc-out="three"> pdfID3</u>
+				</div>
+				<div class="listContainer" arc-list="listItems">
+					<span arc-out="arc-var">listItem</span>
+				</div>
+				<div class="nestedContainer" arc-list="nestedObjects">
+					<div arc-object="arc-var" arc-id="id">
+						<span arc-out="id">nestedID</span>
+						<span arc-out="name">nestedObjectName</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<script>
+
+    Archetype.build();    
+
+</script>
+
+</html>
