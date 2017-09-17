@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Archetype testing</title>
+	<link href="style.css" rel="stylesheet" type="text/css" />
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+	    crossorigin="anonymous"></script>
+	<script src="data.js"></script>
+	<script src="main.js"></script>
+	<script src="deepDiff.js"></script>
+
+
+</head>
+
+<body>
+	<div>
+		<div arc-container="apps" arc-list="applicationData" id="inbox-items">
+			<div arc-object="arc-var" arc-id="id" class="stack inbox-item">
+				<span arc-out="studentName">Student Name</span>
+				<span arc-out="studentCode">Stucode</span>
+				<div class="pdfIDContainer" arc-object="pdfIds">
+					<span arc-out="one"> pdfID1</span> test content not <b>defined</b>
+					<b arc-out="two"> pdfID2</b>
+					<u arc-out="three"> pdfID3</u>
+				</div>
+				<div class="listContainer" arc-list="listItems">
+					<span arc-out="arc-var">listItem</span>
+
+				</div>
+				<div class="nestedContainer" arc-list="nestedObjects">
+					<div arc-object="arc-var" arc-id="id">
+						<span arc-out="id">nestedID</span>
+						<span arc-out="name">nestedObjectName</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<script>
+	var applicationData = [{
+			id: "89uon3af8anef",
+			studentName: "Test Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "9naen",
+				three: "0a9na"
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 2983,
+				name: "test2"
+			}]
+		},
+		{
+			id: "446246234",
+			studentName: "Second Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "9naen",
+				three: "0a9na"
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 2983,
+				name: "test2"
+			}]
+		}
+	];
+
+	var newData = [{
+			id: "89uon3af8anef",
+			studentName: "Test student - updated",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "9naen",
+				three: "0a9na"
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 2983,
+				name: "test2"
+			}]
+		}, {
+			id: "newId",
+			studentName: "Third Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "new pdf Id",
+				three: "0a9na"
+			},
+			listItems: [1, 2, 3, 5, 6],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 1111,
+				name: "VALUYE"
+			}]
+		},
+		{
+			id: "newId",
+			studentName: "Second Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "new pdf Id",
+				three: "0a9na"
+			},
+			listItems: [1, 2, 3, 5, ],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 1111,
+				name: "VALUYE"
+			}]
+		}
+	];
+
+
+
+	//alias Archetype as Arc if you know there is no conflicts
+	Arc = Archetype;
+	//Search the DOM for containers and propogate with data in any existing variables
+	console.time('build');
+	Archetype.build();
+	console.timeEnd('build');
+
+	Archetype.update = function (containerName, newData) {
+		arcContainer = Arc.data[containerName];
+		console.log(newData.length);
+		$.each(DeepDiff(arcContainer.data, newData), function (i, difference) {
+			switch (difference.kind) {
+
+				case 'E':
+					var type = arcContainer.type;
+					if (type == 'list') {
+						Archetype.listEdit(arcContainer.container, difference.path, difference.rhs);
+					}
+					break;
+				case 'A':
+					if (arcContainer.type == 'list') {
+						if (difference.path == undefined) {
+							if (difference.item.kind == 'N') {
+								var toAdd = Archetype.objectPop(difference.item.rhs, arcContainer.archetype.clone(true, true).children());
+								arcContainer.container.append(toAdd);
+							}
+						} else {}
+					}
+					break;
+				case 'D':
+					var type = arcContainer.type;
+					if (type == 'list') {
+						console.log(difference);
+					}
+
+					break;
+
+			}
+		});
+		if (newData instanceof Array) {
+			Arc.data[containerName].data = Array.from(newData);
+		} else {
+			Arc.data[containerName].data = Object.assign({}, newData);
+		}
+	}
+
+	Archetype.listEdit = function (container, path, value) {
+		if (path.length > 1) {
+			container = $(container.children()[path[0]]);
+			if (typeof path[1] == 'string') {
+				path.shift();
+				setTimeout(function(){
+					Archetype.propertyEdit(container, path, value);
+				},0);
+			}
+		} else if (path.length == 1) {
+
+			$(container.find('[arc-out="arc-var"]')[path[0]]).html(value);
+		}
+	}
+
+	Archetype.propertyEdit = function (container, path, value) {
+		if (path.length == 1) {
+			Archetype.valuePop(container, path[0], value);
+		} else if (typeof path[1] == 'number') {
+			container = container.find('[arc-list="' + path[0] + '"]');
+			path.shift();
+			Archetype.listEdit(container, path, value);
+		} else if (typeof path[1] == 'string') {
+			container = container.find('[arc-object="' + path[0] + '"]');
+			path.shift();
+			Archetype.propertyEdit(container, path, value);
+		}
+	}
+
+	setTimeout(function () {
+		console.time();
+		Archetype.update('apps', newData);
+		setTimeout(function () {
+
+			var newData = [{
+				id: "89uon3af8anef",
+				studentName: "Test student - updated",
+				studentCode: "2017784",
+				pdfIds: {
+					one: "a039na",
+					two: "9naen",
+					three: "0a9na"
+				},
+				listItems: [1, 2, 3, 4],
+				nestedObjects: [{
+					id: 3938,
+					name: "test"
+				}, {
+					id: 2983,
+					name: "test2"
+				}]
+			}, {
+				id: "newId",
+				studentName: "Third Student",
+				studentCode: "2017784",
+				pdfIds: {
+					one: "a039na",
+					two: "new pdf Id",
+					three: "0a9na"
+				},
+				listItems: [1, 2, 3, 5, 6],
+				nestedObjects: [{
+					id: 3938,
+					name: "test"
+				}, {
+					id: 1111,
+					name: "VALUYE"
+				}]
+			}, {
+				id: "newId",
+				studentName: "fourth student",
+				studentCode: "2017784",
+				pdfIds: {
+					one: "a039na",
+					two: "new pdf Id",
+					three: "0a9na"
+				},
+				listItems: [1, 2, 3, 5, ],
+				nestedObjects: [{
+					id: 3938,
+					name: "test"
+				}, {
+					id: 1111,
+					name: "VALUYE"
+				}]
+			}, {
+				id: "newId",
+				studentName: "Second Student",
+				studentCode: "2017784",
+				pdfIds: {
+					one: "a039na",
+					two: "new pdf Id",
+					three: "0a9na"
+				},
+				listItems: [1, 2, 3, 5, ],
+				nestedObjects: [{
+					id: 3938,
+					name: "test"
+				}, {
+					id: 1111,
+					name: "VALUYE"
+				}]
+			}]
+			console.time();
+			Archetype.update('apps', newData);
+			console.timeEnd();
+		}, 2000);
+		console.timeEnd();
+	}, 2000);
+</script>
+<script>
+	Archetype.on = function (selector, event, func, onlyBindToArchetypes) {
+		if (!onlyBindToArchetypes) {
+			$(selector).on(event, func);
+		}
+		$.each(Archetype.data, function (index, value) {
+			value.archetype.find(selector).addBack(selector).on(event, func);
+		});
+	}
+
+	Archetype.on('.inbox-item', 'click', function () {
+		console.log('clicked');
+	});
+</script>
+
+</html>
