@@ -4,19 +4,25 @@
     Archetype.data = {};
     Archetype.get = function (value, within) {
         if (within) {
-            return within.find('[arc-' + value + ']');
+            //complete
+            return within.querySelectorAll('[arc-' + value + ']');
         } else {
-            return $('[arc-' + value + ']');
+            //complete
+            return document.querySelectorAll('[arc-' + value + ']');
         }
     }
 
     Archetype.attr = function (object, value, newValue) {
-        return (newValue == undefined) ? object.attr('arc-' + value + '') : object.attr(
-            'arc-' + value + '', newValue);
+        return (newValue == undefined)
+        //complete
+            ? object.getAttribute('arc-' + value + '')
+            //complete
+            : object.setAttribute('arc-' + value + '', newValue);
     }
 
     Archetype.hasAttr = function (object, value) {
-        return object.attr('arc-' + value) != undefined;
+        //complete
+        return object.getAttribute('arc-' + value) != undefined;
     }
 
     Archetype.generate = function (containerName) {
@@ -25,12 +31,13 @@
         switch (Archetype.data[containerName].type) {
 
             case 'list':
-                newContainer = Archetype.listPop(container, Archetype.data[
-                    containerName].data, Archetype.data[containerName].archetype.clone(true, true));
+                //complete
+                newContainer = Archetype.listPop(container, Archetype.data[containerName].data, Archetype.data[containerName].archetype.cloneNode(true));
                 break;
 
             case 'object':
-                newContainer = Archetype.objectPop(Archetype.data[containerName].data, Archetype.data[containerName].archetype.clone(true, true));
+                //complete
+                newContainer = Archetype.objectPop(Archetype.data[containerName].data, Archetype.data[containerName].archetype.cloneNode(true));
                 break;
 
             default:
@@ -39,122 +46,225 @@
 
         }
 
-        $(container).replaceWith(newContainer[0]);
+        container.replaceWith(newContainer);
         Archetype.data[containerName].container = newContainer;
     }
 
     Archetype.build = function () {
         var containers = Archetype.get('container');
-        $.each(containers, function (index, container) {
-            var name = Archetype.attr($(container), 'container');
+        for (var index = 0; index < containers.length; index++) {
+            container = containers[index];
+            var name = Archetype.attr(container, 'container');
             var data;
             var type;
             if (Archetype.data[name] != undefined) {
                 console.warn('Do not attempt to build twice - use Archetype.generate(modelName) after build');
                 return false;
             }
-            if (Archetype.hasAttr($(container), 'list')) {
+            if (Archetype.hasAttr(container, 'list')) {
                 //list object
                 type = 'list';
-                data = window[Archetype.attr($(container), 'list')];
+                data = window[Archetype.attr(container, 'list')];
                 Archetype.data[name] = {
                     type: type,
-                    archetype: $(container).clone(true, true),
-                    container: $(container),
+                    archetype: container.cloneNode(true),
+                    container: container
                 }
-                if(newData instanceof Array){
+                if (newData instanceof Array) {
                     Archetype.data[name].data = Array.from(data);
+                } else {
+                    Archetype.data[name].data = Object.assign({}, data);
                 }
-                else{
-                    Archetype.data[name].data = Object.assign({},data);
-                }
-        
+
                 Archetype.generate(name);
 
-            } else if (Archetype.hasAttr($(container), 'object')) {
+            } else if (Archetype.hasAttr(container, 'object')) {
                 //dict object
                 type = 'object';
-                data = window[Archetype.attr($(container), 'object')];
+                data = window[Archetype.attr(container, 'object')];
                 Archetype.data[name] = {
                     type: type,
-                    archetype: $(container).clone(true, true),
-                    container: $(container),
+                    archetype: container.cloneNode(true),
+                    container: container
                 }
-                if(newData instanceof Array){
+                if (newData instanceof Array) {
                     Archetype.data[name].data = Array.from(data);
+                } else {
+                    Archetype.data[name].data = Object.assign({}, data);
                 }
-                else{
-                    Archetype.data[name].data = Object.assign({},data);
-                }
-        
+
                 Archetype.generate(name);
             } else {
-                console.warn(
-                    'No arc-list or arc-object varaible provided for this element'
-                );
+                console.warn('No arc-list or arc-object varaible provided for this element');
                 console.warn(container);
             }
-        });
+        }
     }
 
     Archetype.listPop = function (container, data, model) {
         if (model == undefined) {
-            model = container.clone(true, true);
+            
+            model = container.cloneNode(true);
         }
-        container.html('');
-        $.each(data, function (index, value) {
-            if ($.isPlainObject(value)) {
-                object = Archetype.objectPop(value, model.children().clone(true, true));
-                container.append(object);
+        container.innerHTML = '';
+        for (index = 0; index < data.length; index++) {
+            var value = data[index];
+            if (Object.prototype.toString.call(value) === "[object Object]") {
+                for(var i=0; i<model.childNodes.length; i++){
+                    if(model.childNodes[i].nodeType  != 3){
+                        object = Archetype.objectPop(value, model.childNodes[i].cloneNode(true));
+                        container.append(object);
+                    }
+                }
             } else if (value instanceof Array) {} else {
-                newElem = Archetype.valuePop(model.clone(true, true), 'arc-var',
-                    value);
-                container.append(newElem);
+                newElem = Archetype.valuePop(model.childNodes[1].cloneNode(true), 'arc-var', value);
+                container.appendChild(newElem);
             }
-        });
+        }
 
         return container;
     }
 
     Archetype.objectPop = function (data, model) {
+        
         if (Archetype.hasAttr(model, 'id')) {
             Archetype.attr(model, 'id', (data[Archetype.attr(model, 'id')]));
         }
-        $.each(data, function (index, value) {
-            if ($.isPlainObject(value)) {
+        for (index in data){
+            var value = data[index];
+            if (Object.prototype.toString.call(value) === "[object Object]") {
                 //object
-                $.each(model.find('[arc-object="' + index + '"]'), function (i,
-                    elem) {
-                    nestedModel = $(elem);
-                    Archetype.objectPop(value, nestedModel);
-                });
+                var elements = model.querySelectorAll('[arc-object="' + index + '"]');
+                for (i = 0; i < elements.length; i++) {
+                    var elem = elements[i];
+                    console.log(elem);
+                    Archetype.objectPop(value, elem);
+                }
             } else if (value instanceof Array) {
                 //list
-                nestedContainer = model.find('[arc-list="' + index + '"]');
-                Archetype.listPop(nestedContainer, value);
+                nestedContainer = model.querySelectorAll('[arc-list="' + index + '"]');
+                Archetype.listPop(nestedContainer[0], value);
             } else {
                 //literal
                 Archetype.valuePop(model, index, value);
             }
-        });
+        }
         return model;
     }
+    Archetype.getClosest = function ( elem, selector ) {
+        
+            // Element.matches() polyfill
+            if (!Element.prototype.matches) {
+                Element.prototype.matches =
+                    Element.prototype.matchesSelector ||
+                    Element.prototype.mozMatchesSelector ||
+                    Element.prototype.msMatchesSelector ||
+                    Element.prototype.oMatchesSelector ||
+                    Element.prototype.webkitMatchesSelector ||
+                    function(s) {
+                        var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+                            i = matches.length;
+                        while (--i >= 0 && matches.item(i) !== this) {}
+                        return i > -1;
+                    };
+            }
+        
+            // Get closest match
+            for ( ; elem && elem !== document; elem = elem.parentNode ) {
+                if ( elem.matches( selector ) ) return elem;
+            }
+        
+            return null;
+        
+        };
+        
 
     Archetype.valuePop = function (model, index, value) {
-        $.each(model.find('[arc-out="' + index + '"]'), function (i, elem) {
+        var elements = model.querySelectorAll('[arc-out="' + index + '"]');
+        for (i = 0; i < elements.length; i++) {
+            var elem = elements[i];
             //prevents entering nested objects
             if (index == 'arc-var') {
-                if ($(elem).closest('[arc-list]')[0] == model[0]) {
+                if (Archetype.getClosest(elem,'[arc-list]') == model) {
                     $(elem).html(value);
                 }
             }
-            if ($(elem).closest('[arc-object]')[0] == model[0]) {
+            if (Archetype.getClosest(elem,'[arc-object]') == model) {
                 $(elem).html(value);
             }
-        })
+        }
+        return model;
 
-        return model.find('[arc-out="' + index + '"]');
+    }
 
+    Archetype.update = function (containerName, newData) {
+        arcContainer = Arc.data[containerName];
+        console.log(newData.length);
+        $.each(DeepDiff(arcContainer.data, newData), function (i, difference) {
+            switch (difference.kind) {
+
+                case 'E':
+                    var type = arcContainer.type;
+                    if (type == 'list') {
+                        Archetype.listEdit(arcContainer.container, difference.path, difference.rhs);
+                    }
+                    break;
+                case 'A':
+                    if (arcContainer.type == 'list') {
+                        if (difference.path == undefined) {
+                            if (difference.item.kind == 'N') {
+                                var toAdd = Archetype.objectPop(difference.item.rhs, arcContainer.archetype.clone(true, true).children());
+                                arcContainer
+                                    .container
+                                    .append(toAdd);
+                            }
+                        } else {}
+                    }
+                    break;
+                case 'D':
+                    var type = arcContainer.type;
+                    if (type == 'list') {
+                        console.log(difference);
+                    }
+
+                    break;
+
+            }
+        });
+        if (newData instanceof Array) {
+            Arc.data[containerName].data = Array.from(newData);
+        } else {
+            Arc.data[containerName].data = Object.assign({}, newData);
+        }
+    }
+
+    Archetype.listEdit = function (container, path, value) {
+        if (path.length > 1) {
+            container = $(container.children()[path[0]]);
+            if (typeof path[1] == 'string') {
+                path.shift();
+                setTimeout(function () {
+                    Archetype.propertyEdit(container, path, value);
+                }, 0);
+            }
+        } else if (path.length == 1) {
+
+            $(container.find('[arc-out="arc-var"]')[path[0]]).html(value);
+        }
+    }
+
+    Archetype.propertyEdit = function (container, path, value) {
+        if (path.length == 1) {
+            Archetype.valuePop(container, path[0], value);
+        } else if (typeof path[1] == 'number') {
+            container = container.find('[arc-list="' + path[0] + '"]');
+            path.shift();
+            Archetype.listEdit(container, path, value);
+        } else if (typeof path[1] == 'string') {
+            container = container.find('[arc-object="' + path[0] + '"]');
+            path.shift();
+            Archetype.propertyEdit(container, path, value);
+        }
     }
 
     window.Archetype = Archetype;

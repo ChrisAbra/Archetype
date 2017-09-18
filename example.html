@@ -146,73 +146,6 @@
 	Archetype.build();
 	console.timeEnd('build');
 
-	Archetype.update = function (containerName, newData) {
-		arcContainer = Arc.data[containerName];
-		console.log(newData.length);
-		$.each(DeepDiff(arcContainer.data, newData), function (i, difference) {
-			switch (difference.kind) {
-
-				case 'E':
-					var type = arcContainer.type;
-					if (type == 'list') {
-						Archetype.listEdit(arcContainer.container, difference.path, difference.rhs);
-					}
-					break;
-				case 'A':
-					if (arcContainer.type == 'list') {
-						if (difference.path == undefined) {
-							if (difference.item.kind == 'N') {
-								var toAdd = Archetype.objectPop(difference.item.rhs, arcContainer.archetype.clone(true, true).children());
-								arcContainer.container.append(toAdd);
-							}
-						} else {}
-					}
-					break;
-				case 'D':
-					var type = arcContainer.type;
-					if (type == 'list') {
-						console.log(difference);
-					}
-
-					break;
-
-			}
-		});
-		if (newData instanceof Array) {
-			Arc.data[containerName].data = Array.from(newData);
-		} else {
-			Arc.data[containerName].data = Object.assign({}, newData);
-		}
-	}
-
-	Archetype.listEdit = function (container, path, value) {
-		if (path.length > 1) {
-			container = $(container.children()[path[0]]);
-			if (typeof path[1] == 'string') {
-				path.shift();
-				setTimeout(function(){
-					Archetype.propertyEdit(container, path, value);
-				},0);
-			}
-		} else if (path.length == 1) {
-
-			$(container.find('[arc-out="arc-var"]')[path[0]]).html(value);
-		}
-	}
-
-	Archetype.propertyEdit = function (container, path, value) {
-		if (path.length == 1) {
-			Archetype.valuePop(container, path[0], value);
-		} else if (typeof path[1] == 'number') {
-			container = container.find('[arc-list="' + path[0] + '"]');
-			path.shift();
-			Archetype.listEdit(container, path, value);
-		} else if (typeof path[1] == 'string') {
-			container = container.find('[arc-object="' + path[0] + '"]');
-			path.shift();
-			Archetype.propertyEdit(container, path, value);
-		}
-	}
 
 	setTimeout(function () {
 		console.time();
@@ -305,9 +238,11 @@
 		});
 	}
 
+	/*
 	Archetype.on('.inbox-item', 'click', function () {
 		console.log('clicked');
 	});
+	*/
 </script>
 
 </html>
