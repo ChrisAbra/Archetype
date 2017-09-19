@@ -7,8 +7,6 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Archetype testing</title>
 	<link href="style.css" rel="stylesheet" type="text/css" />
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
-	    crossorigin="anonymous"></script>
 	<script src="data.js"></script>
 	<script src="main.js"></script>
 	<script src="deepDiff.js"></script>
@@ -117,7 +115,7 @@
 				id: 3938,
 				name: "test"
 			}, {
-				id: 1111,
+				id: 1165184198560651,
 				name: "VALUYE"
 			}]
 		},
@@ -204,7 +202,7 @@
 					id: 3938,
 					name: "test"
 				}, {
-					id: 1111,
+					id: 1121,
 					name: "VALUYE"
 				}]
 			}, {
@@ -221,18 +219,19 @@
 					id: 3938,
 					name: "test"
 				}, {
-					id: 1111,
+					id: 5555,
 					name: "VALUYE"
 				}]
 			}]
 			console.time();
 			Archetype.update('apps', newData);
 			console.timeEnd();
-		}, 20000);
+		}, 2000);
 		console.timeEnd();
-	}, 500);
+	}, 1000);
 </script>
 <script>
+	/*
 	Archetype.on = function (selector, event, func, onlyBindToArchetypes) {
 		if (!onlyBindToArchetypes) {
 			$(selector).on(event, func);

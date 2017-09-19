@@ -1,4 +1,4 @@
-(function (window, $) {
+(function (window) {
     var Archetype = {};
 
     Archetype.data = {};
@@ -85,7 +85,7 @@
                     archetype: container.cloneNode(true),
                     container: container
                 }
-                
+
                 if (newData instanceof Array) {
                     Archetype.data[name].data = Array.from(data);
                 } else {
@@ -129,7 +129,7 @@
             }
         }
         container.innerHTML = '';
-        
+
         for (i = 0; i < arcObjectsToAdd.length; i++) {
             arcObject = arcObjectsToAdd[i];
             container.appendChild(arcObject);
@@ -245,28 +245,30 @@
 
     Archetype.update = function (containerName, newData) {
         arcContainer = Arc.data[containerName];
-        var differences = DeepDiff(arcContainer.data,newData);
-        for(var i = 0; i < differences.length; i++){
+        var differences = DeepDiff(arcContainer.data, newData);
+        for (var i = 0; i < differences.length; i++) {
 
             difference = differences[i];
-        //$.each(DeepDiff(arcContainer.data, newData), function (i, difference) {
             switch (difference.kind) {
-
+                
                 case 'E':
                     var type = arcContainer.type;
                     if (type == 'list') {
-                        console.log(arcContainer.container, difference.path, difference.rhs);
                         Archetype.listEdit(arcContainer.container, difference.path, difference.rhs);
                     }
                     break;
-                case 'A-':
+                case 'A':
                     if (arcContainer.type == 'list') {
                         if (difference.path == undefined) {
                             if (difference.item.kind == 'N') {
-                                var toAdd = Archetype.objectPop(difference.item.rhs, arcContainer.archetype.clone(true, true).children());
-                                arcContainer
-                                    .container
-                                    .appendChild(toAdd);
+                                model = arcContainer.archetype.childNodes;
+                                for(var j=0;j<model.length;j++){
+                                    if(model[j].nodeType != 3){
+                                        toAdd = model[j].cloneNode(true);
+                                        arcContainer.container.appendChild(toAdd);
+                                        Archetype.objectPop(difference.item.rhs, toAdd);
+                                    }
+                                }
                             }
                         } else {}
                     }
@@ -280,7 +282,8 @@
                     break;
 
             }
-        }//);
+        }
+
         if (newData instanceof Array) {
             Arc.data[containerName].data = Array.from(newData);
         } else {
@@ -290,17 +293,17 @@
 
     Archetype.listEdit = function (container, path, value) {
         if (path.length > 1) {
-            console.log(container);
-            container = $(container.children()[path[0]]);
+            container = container.childNodes[path[0]];
+            
             if (typeof path[1] == 'string') {
                 path.shift();
-                setTimeout(function () {
+                //setTimeout(function () {
                     Archetype.propertyEdit(container, path, value);
-                }, 0);
+                //}, 0);
             }
         } else if (path.length == 1) {
 
-            $(container.find('[arc-out="arc-var"]')[path[0]]).html(value);
+            container.querySelectorAll('[arc-out="arc-var"]')[path[0]].innerHTML = value;
         }
     }
 
@@ -308,11 +311,11 @@
         if (path.length == 1) {
             Archetype.valuePop(container, path[0], value);
         } else if (typeof path[1] == 'number') {
-            container = container.find('[arc-list="' + path[0] + '"]');
+            container = container.querySelectorAll('[arc-list="' + path[0] + '"]')[0];
             path.shift();
             Archetype.listEdit(container, path, value);
         } else if (typeof path[1] == 'string') {
-            container = container.find('[arc-object="' + path[0] + '"]');
+            container = container.querySelectorAll('[arc-object="' + path[0] + '"]')[0];
             path.shift();
             Archetype.propertyEdit(container, path, value);
         }
@@ -320,4 +323,4 @@
 
     window.Archetype = Archetype;
 
-})(window, $);
+})(window);
