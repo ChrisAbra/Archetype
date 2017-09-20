@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Archetype testing</title>
+	<link href="style.css" rel="stylesheet" type="text/css" />
+	<script src="data.js"></script>
+	<script src="alt.js"></script>
+	<script src="deepDiff.js"></script>
+
+
+</head>
+
+<body>
+	<div>
+		<div arc-container="apps" arc-list="applicationData" id="inbox-items">
+			<div arc-object="arc-var" arc-id="id" class="stack inbox-item">
+				<span arc-out="studentName">Student Name</span>
+				<span arc-out="studentCode">Stucode</span>
+				<span arc-out="studentCode">Stucode</span>
+				<div class="pdfIDContainer" arc-object="pdfIds">
+					<span arc-out="one"> pdfID1</span> test content not <b>defined</b>
+					<b arc-out="two"> pdfID2</b>
+					<u arc-out="three"> pdfID3</u>
+					<div class="listContainer2" arc-list="innerList">
+						<span arc-out="arc-var">listItem</span>
+					</div>
+				</div>
+				<div class="listContainer" arc-list="listItems">
+					<div>
+						test data
+						<span arc-out="arc-var">listItem</span>
+					</div>
+				</div>
+				<div class="nestedContainer" arc-list="nestedObjects">
+					<div class="nestedItem" arc-object="arc-var" arc-id="id">
+						<span arc-out="id">nestedID</span>
+						<span arc-out="name">nestedObjectName</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<script>
+	var applicationData = [{
+			id: "89uon3af8anef",
+			studentName: "Test Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "9naen",
+				three: "0a9na",
+				innerList: [1, 2, 3]
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 2983,
+				name: "test2"
+			}]
+		},
+		{
+			id: "446246234",
+			studentName: "Second Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "398209",
+				three: "0a9n",
+				innerList: [1, 2, 3]
+
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+					id: 3938,
+					name: "test"
+				}, {
+					id: 449861,
+					name: "test2"
+				},
+				{
+					id: 2983,
+					name: "test2"
+				}
+			]
+		}
+	];
+	var newData = [{
+			id: "89uon3af8anef",
+			studentName: "Test Student",
+			studentCode: "1000000",
+			pdfIds: {
+				one: "a039na",
+				two: "9naen",
+				three: "0a9na",
+				innerList: [1, 2, 3]
+			},
+			listItems: [1, 2, 3, 4,5,6],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 2983,
+				name: "test2"
+			}]
+		},
+		{
+			id: "446246234",
+			studentName: "Third Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "398209",
+				three: "0a9n",
+				innerList: [1, 5, 3]
+
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+					id: 3938,
+					name: "test"
+				}, {
+					id: 449861,
+					name: "test2"
+				},
+				{
+					id: 2983,
+					name: "test2"
+				}
+			]
+		}
+		,
+		{
+			id: "446246234",
+			studentName: "Fourth Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "3r3qrf3",
+				two: "e",
+				three: "0a9n",
+				innerList: [1, 5, 3]
+
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+					id: 3938,
+					name: "test"
+				}, {
+					id: 449861,
+					name: "test2"
+				},
+				{
+					id: 2983,
+					name: "test2"
+				}
+			]
+		}
+	];
+
+	
+
+	//alias Archetype as Arc if you know there is no conflicts
+	Arc = Archetype;
+	//Search the DOM for containers and propogate with data in any existing variables
+	console.time('build');
+	Archetype.build();
+	console.timeEnd('build');
+
+	console.time('update');
+	Archetype.update('apps', applicationData);
+	console.timeEnd('update');
+
+	setTimeout(function () {
+		console.time('update');
+
+		Archetype.update('apps', newData);
+		console.timeEnd('update');
+
+	}, 100);
+</script>
+
+</html>
