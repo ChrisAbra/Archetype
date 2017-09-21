@@ -25,7 +25,7 @@
 					<span arc-out="one"> pdfID1</span> test content not <b>defined</b>
 					<b arc-out="two"> pdfID2</b>
 					<u arc-out="three"> pdfID3</u>
-					<div class="listContainer2" arc-list="innerList">
+					<div class="innerList" arc-list="innerList">
 						<span arc-out="arc-var">listItem</span>
 					</div>
 				</div>
@@ -96,14 +96,33 @@
 	var newData = [{
 			id: "89uon3af8anef",
 			studentName: "Test Student",
-			studentCode: "1000000",
+			studentCode: "2017784",
 			pdfIds: {
 				one: "a039na",
 				two: "9naen",
 				three: "0a9na",
 				innerList: [1, 2, 3]
 			},
-			listItems: [1, 2, 3, 4,5,6],
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}, {
+				id: 2983,
+				name: "test2"
+			}]
+		},
+		{
+			id: "89uon3af8anef",
+			studentName: "Test Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "9naen",
+				three: "0a9na",
+				innerList: [1, 2, 3]
+			},
+			listItems: [1, 2, 3, 4],
 			nestedObjects: [{
 				id: 3938,
 				name: "test"
@@ -114,16 +133,16 @@
 		},
 		{
 			id: "446246234",
-			studentName: "Third Student",
+			studentName: "Second Student",
 			studentCode: "2017784",
 			pdfIds: {
 				one: "a039na",
-				two: "398209",
+				two: "1605616532065306",
 				three: "0a9n",
-				innerList: [1, 5, 3]
+				innerList: [1, 2, 3, 7, 8, 9]
 
 			},
-			listItems: [1, 2, 3, 4],
+			listItems: [1, 2, 3, 4, 5, 0],
 			nestedObjects: [{
 					id: 3938,
 					name: "test"
@@ -134,57 +153,49 @@
 				{
 					id: 2983,
 					name: "test2"
-				}
-			]
-		}
-		,
-		{
-			id: "446246234",
-			studentName: "Fourth Student",
-			studentCode: "2017784",
-			pdfIds: {
-				one: "3r3qrf3",
-				two: "e",
-				three: "0a9n",
-				innerList: [1, 5, 3]
-
-			},
-			listItems: [1, 2, 3, 4],
-			nestedObjects: [{
-					id: 3938,
-					name: "test"
-				}, {
-					id: 449861,
-					name: "test2"
 				},
 				{
-					id: 2983,
-					name: "test2"
+					id: 35235235235,
+					name: "test 3"
 				}
 			]
 		}
 	];
+	var deleteData = [{
+			id: "89uon3af8anef",
+			studentName: "Test Student",
+			studentCode: "2017784",
+			pdfIds: {
+				one: "a039na",
+				two: "9naen",
+				three: "0a9na",
+				innerList: [1, 2, 3]
+			},
+			listItems: [1, 2, 3, 4],
+			nestedObjects: [{
+				id: 3938,
+				name: "test"
+			}]
+		}
+	];
 
-	
+
+
 
 	//alias Archetype as Arc if you know there is no conflicts
 	Arc = Archetype;
 	//Search the DOM for containers and propogate with data in any existing variables
-	console.time('build');
+	console.time('total');
 	Archetype.build();
-	console.timeEnd('build');
-
-	console.time('update');
 	Archetype.update('apps', applicationData);
+	console.timeEnd('total');
+	console.time('update');
+	Archetype.update('apps', newData);
 	console.timeEnd('update');
+	console.time('delete');
+	Archetype.update('apps', deleteData);
+	console.timeEnd('delete');
 
-	setTimeout(function () {
-		console.time('update');
-
-		Archetype.update('apps', newData);
-		console.timeEnd('update');
-
-	}, 1000);
 </script>
 
 </html>
