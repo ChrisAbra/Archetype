@@ -101,33 +101,17 @@
 				one: "a039na",
 				two: "9naen",
 				three: "0a9na",
-				innerList: [1, 2, 3]
+				innerList: [1, 2,3,4]
 			},
-			listItems: [1, 2, 3, 4],
+			listItems: [1, 2, 4],
 			nestedObjects: [{
 				id: 3938,
 				name: "test"
 			}, {
 				id: 2983,
 				name: "test2"
-			}]
-		},
-		{
-			id: "89uon3af8anef",
-			studentName: "Test Student",
-			studentCode: "2017784",
-			pdfIds: {
-				one: "a039na",
-				two: "9naen",
-				three: "0a9na",
-				innerList: [1, 2, 3]
-			},
-			listItems: [1, 2, 3, 4],
-			nestedObjects: [{
-				id: 3938,
-				name: "test"
 			}, {
-				id: 2983,
+				id: 11234,
 				name: "test2"
 			}]
 		},
@@ -137,47 +121,34 @@
 			studentCode: "2017784",
 			pdfIds: {
 				one: "a039na",
-				two: "1605616532065306",
+				two: "398209",
 				three: "0a9n",
-				innerList: [1, 2, 3, 7, 8, 9]
+				innerList: [1, 2,3]
 
 			},
-			listItems: [1, 2, 3, 4, 5, 0],
-			nestedObjects: [{
-					id: 3938,
-					name: "test"
-				}, {
-					id: 449861,
-					name: "test2"
-				},
-				{
-					id: 2983,
-					name: "test2"
-				},
-				{
-					id: 35235235235,
-					name: "test 3"
-				}
-			]
-		}
-	];
-	var deleteData = [{
-			id: "89uon3af8anef",
-			studentName: "Test Student",
-			studentCode: "2017784",
-			pdfIds: {
-				one: "a039na",
-				two: "9naen",
-				three: "0a9na",
-				innerList: [1, 2, 3]
-			},
-			listItems: [1, 2, 3, 4],
+			listItems: [1, 2, 3,4],
 			nestedObjects: [{
 				id: 3938,
-				name: "test"
+				name: "new text"
 			}]
 		}
 	];
+	var deleteData = [{
+		id: "89uon3af8anef",
+		studentName: "Test Student",
+		studentCode: "2017784",
+		pdfIds: {
+			one: "a039na",
+			two: "9naen",
+			three: "0a9na",
+			innerList: [1, 2, 3]
+		},
+		listItems: [1, 2, 3, 4],
+		nestedObjects: [{
+			id: 3938,
+			name: "test"
+		}]
+	}];
 
 
 
@@ -186,16 +157,21 @@
 	Arc = Archetype;
 	//Search the DOM for containers and propogate with data in any existing variables
 	console.time('total');
+
 	Archetype.build();
 	Archetype.update('apps', applicationData);
 	console.timeEnd('total');
-	console.time('update');
-	Archetype.update('apps', newData);
-	console.timeEnd('update');
-	console.time('delete');
-	Archetype.update('apps', deleteData);
-	console.timeEnd('delete');
+	setTimeout(function () {
+		console.time('update');
+		Archetype.update('apps', newData);
+		console.timeEnd('update');
+	}, 1000);
 
+	setTimeout(function () {
+		console.time('delete');
+		Archetype.update('apps', deleteData);
+		console.timeEnd('delete');
+	}, 2000);
 </script>
 
 </html>

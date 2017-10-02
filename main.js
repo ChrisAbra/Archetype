@@ -146,7 +146,7 @@
         if (Archetype.hasAttr(model, 'id')) {
             Archetype.attr(model, 'id', (data[Archetype.attr(model, 'id')]));
         }
-        for (index in data) {
+        for (var index in data) {
             var value = data[index];
             if (Object.prototype.toString.call(value) === "[object Object]") {
                 //object
@@ -170,7 +170,7 @@
 
 
     Archetype.objectStore = function (data, archetype, structure) {
-        for (index in data) {
+        for (var index in data) {
             value = data[index];
             if (value instanceof Array) {
                 var container = archetype.querySelectorAll('[arc-list="' + index + '"]')[0].cloneNode(true);
@@ -238,7 +238,39 @@
         }
     }
 
+    Archetype.toDelete = function (parent, path, index, toBeDeleted) {
+        if (toBeDeleted == undefined) {
+            toBeDeleted = {};
+        }
+        var step = path.shift();
+        if (typeof step == 'number') {
+            if (path[0] != undefined) {
+                toBeDeleted[step] = Archetype.toDelete(parent.childNodes[step], path, index, toBeDeleted[step]);
+            }
+        } else if (typeof step == 'string') {
+            var elements = parent.querySelectorAll('[arc-list="' + step + '"]');
+            if (elements.length == 0) {
+                elements = parent.querySelectorAll('[arc-object="' + step + '"]')
+            }
+            var element = elements[0];
+            if (path.length == 0) {
+                if (toBeDeleted[step] == undefined) {
+                    toBeDeleted[step] = [element.childNodes[index]];
+                } else {
+                    toBeDeleted[step].push(element.childNodes[index]);
+                }
+            } else {
+                if (toBeDeleted[step] == undefined) {
+                    toBeDeleted[step] = Archetype.toDelete(element, path, index, toBeDeleted[step]);
+                } else {
+                    toBeDeleted[step].push(Archetype.toDelete(element, path, index, toBeDeleted[step]));
+                }
+            }
 
+        }
+
+        return toBeDeleted;
+    }
 
     Archetype.update = function (containerName, newData) {
         var container = Arc.containers[containerName];
@@ -247,6 +279,7 @@
 
         if (differences != undefined) {
             var indexesToRemove = [];
+            var toBeDeleted;
             if (newData instanceof Array) {
                 container.data = Array.from(newData);
             } else {
@@ -262,7 +295,7 @@
                         }
 
                         break;
-                        //chagnes inside and array
+                        //chagnes inside an array
                     case 'A':
                         if (type == 'list') {
                             if (difference.item.kind == 'N') {
@@ -298,21 +331,41 @@
                                 if (difference.path == undefined) {
                                     indexesToRemove.push(difference.index);
                                 } else {
-                                    console.log(difference.path);
+                                    toBeDeleted = Archetype.toDelete(container.parent, Array.from(difference.path), difference.index, toBeDeleted);
                                 }
                             }
                         }
                         break;
                 }
             }
+
             if (indexesToRemove.length > 0) {
                 for (var i = indexesToRemove.length - 1; i >= 0; i--) {
-                        container.parent.childNodes[indexesToRemove[i]].remove();                    
+                    container.parent.childNodes[indexesToRemove[i]].remove();
                 }
+            }
+
+            console.log(toBeDeleted);
+            if (toBeDeleted != {}) {
+                Archetype.deleteNested(toBeDeleted);
             }
         }
     }
 
+    Archetype.deleteNested = function(toBeDeleted){
+        for(var key in toBeDeleted){
+            if(toBeDeleted[key] instanceof Array){
+                for (var i = toBeDeleted[key].length -1; i >= 0; i--) {
+                    toBeDeleted[key][i].remove();
+                }
+            }
+            else{
+                Archetype.deleteNested(toBeDeleted[key]);
+            }
+        }
+}
+
     window.Archetype = Archetype;
+
 
 })(window);
