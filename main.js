@@ -121,7 +121,8 @@
     }
 
     Archetype.listPop = function (container, data, model) {
-        if (model == undefined) {
+        console.log(container, data, model);
+        if (model === undefined) {
             model = container.cloneNode(true);
         }
         var arcObjectsToAdd = [];
@@ -158,7 +159,9 @@
             } else if (value instanceof Array) {
                 //list
                 nestedContainer = model.querySelectorAll('[arc-list="' + index + '"]');
-                Archetype.listPop(nestedContainer[0], value, );
+                if(nestedContainer.length > 0){
+                    Archetype.listPop(nestedContainer[0], value, );                    
+                }
             } else {
                 //literal
                 Archetype.valuePop(model, index, value);
@@ -172,15 +175,23 @@
     Archetype.objectStore = function (data, archetype, structure) {
         for (var index in data) {
             value = data[index];
+            console.log(index);
+            console.log(value);
             if (value instanceof Array) {
-                var container = archetype.querySelectorAll('[arc-list="' + index + '"]')[0].cloneNode(true);
-                structure[index] = {}
-                Archetype.listStore(value[0], container, structure[index]);
+                var container = archetype.querySelectorAll('[arc-list="' + index + '"]');
+                if(container.length > 0){
+                    var container = container[0].cloneNode(true);
+                    structure[index] = {}
+                    Archetype.listStore(value[0], container, structure[index]);
+                }
 
             } else if (Object.prototype.toString.call(value) === "[object Object]") {
-                var objectDef = archetype.querySelectorAll('[arc-object="' + index + '"]')[0].cloneNode(true);
-                structure[index] = {};
-                Archetype.objectStore(value, objectDef, structure[index]);
+                var objectDef = archetype.querySelectorAll('[arc-object="' + index + '"]');
+                if(objectDef.length > 0){
+                    var objectDef = objectDef[0].cloneNode(true);
+                    structure[index] = {};
+                    Archetype.objectStore(value, objectDef, structure[index]);    
+                }
             }
         }
     }
@@ -210,7 +221,8 @@
     }
 
     Archetype.listEdit = function (container, path, value) {
-        if (path.length > 1) {
+        
+        if (path && path.length > 1) {
             container = container.childNodes[path[0]];
 
             if (typeof path[1] == 'string') {
@@ -219,7 +231,7 @@
                 Archetype.propertyEdit(container, path, value);
                 //}, 0);
             }
-        } else if (path.length == 1) {
+        } else if (path && path.length == 1) {
             container.querySelectorAll('[arc-out="arc-var"]')[path[0]].innerHTML = value;
         }
     }
@@ -230,6 +242,7 @@
         } else if (typeof path[1] == 'number') {
             container = container.querySelectorAll('[arc-list="' + path[0] + '"]')[0];
             path.shift();
+            console.log(container, path, value);
             Archetype.listEdit(container, path, value);
         } else if (typeof path[1] == 'string') {
             container = container.querySelectorAll('[arc-object="' + path[0] + '"]')[0];
@@ -276,7 +289,7 @@
         var container = Arc.containers[containerName];
         var type = container.type;
         var differences = DeepDiff(container.data, newData);
-
+        console.log(differences);
         if (differences != undefined) {
             var indexesToRemove = [];
             var toBeDeleted;
