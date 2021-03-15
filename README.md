@@ -1,6 +1,6 @@
 Archetype 
 =========
-+ currently in development. 
++ obviously do not use this
 
 This javascript library is designed to easily facilitate the binding of data variables to HTML structures, updating when data changes. 
 By declaring the HTML structures inside of the page itself (rather than JSX definitions of React-js)
